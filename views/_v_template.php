@@ -21,6 +21,8 @@
 
         <a href='/users/logout'>Logout</a>
         <a href='/users/profile'>Profile</a>
+        <a href='/posts/add'>Add Post</a>
+        <a href='/posts/index'>View Posts</a>
 
         <!-- Menu options for users who are not logged in -->
     <?php else: ?>
