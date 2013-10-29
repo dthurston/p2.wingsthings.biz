@@ -23,7 +23,8 @@ class users_controller extends base_controller {
     }
     
 	public function p_signup() {
-		// More data we want stored with the user
+
+        // More data we want stored with the user
     		$_POST['created']  = Time::now();
     		$_POST['modified'] = Time::now();
 		
@@ -44,7 +45,7 @@ class users_controller extends base_controller {
 	public function login($error = NULL) {
 
     	# Set up the view
-    	$this->template->content = View::instance("v_users_login");
+    	$this->template->content = View::instance('v_users_login');
         # Pass data to the view
     	$this->template->content->error = $error;
         # Render the view
@@ -71,8 +72,7 @@ class users_controller extends base_controller {
 
 		# Login failed
     		if(!$token) {
-    			# Start my new error checking here #
-    			# End adding my new error checking #
+
         		# Note the addition of the parameter "error"
         		$this->template->error = $error;
                     //echo "user exists, but bad password";
@@ -110,6 +110,11 @@ class users_controller extends base_controller {
 
     public function profile($user_name = NULL) {
 
+        if(!$this->user) {
+            Router::redirect('/users/login');
+            //die("Members Only! <a href=/users/login>Login Page</a>");
+        }
+
     # Setup view
     $this->template->content = View::instance('v_users_profile');
 
@@ -134,7 +139,7 @@ class users_controller extends base_controller {
 */
 
     # Use load_client_files to generate the links from the above array
-    $this->template->client_files_body = Utils::load_client_files($client_files_body);  
+    $this->template->client_files_body = Utils::load_client_files($client_files_body);
 
     # Pass information to the view fragment
     $this->template->content->user_name = $user_name;

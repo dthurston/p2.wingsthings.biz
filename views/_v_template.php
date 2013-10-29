@@ -23,6 +23,7 @@
         <a href='/users/profile'>Profile</a>
         <a href='/posts/add'>Add Post</a>
         <a href='/posts/index'>View Posts</a>
+        <a href='/posts/users'>View Users</a>
 
         <!-- Menu options for users who are not logged in -->
     <?php else: ?>
