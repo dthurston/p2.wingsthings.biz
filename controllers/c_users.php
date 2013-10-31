@@ -36,9 +36,8 @@ class users_controller extends base_controller {
 		// Insert this user into the database
     		$user_id = DB::instance(DB_NAME)->insert('users', $_POST);
 
-    	// For now, just confirm they've signed up - 
-    	// You should eventually make a proper View for this
-    	//	echo 'You\'re signed up';
+    	// This should be changed to a post signup view.
+        // For now, just route them to the index page...
         Router::redirect("/");
     }
 
@@ -121,12 +120,12 @@ class users_controller extends base_controller {
     # Set page title
     $this->template->title = "Profile";
 
-/*    # Create an array of 1 or many client files to be included in the head
+    # Create an array of 1 or many client files to be included in the head
     $client_files_head = Array(
-        '/css/widgets.css'
+        '/css/widgets.css',
         '/css/profile.css'
         );
-*/
+
 
     # Use load_client_files to generate the links from the above array
     $this->template->client_files_head = Utils::load_client_files($client_files_head);  

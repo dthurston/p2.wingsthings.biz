@@ -1,20 +1,21 @@
-<form method='POST' action='/users/p_login'>
+<form class="form-inline" method='POST' action='/users/p_login'>
 
-    Email<br>
-    <input type='text' name='email'>    
+
+    <input type="text" class="input-small" placeholder="Email" name="email">
+    <input type="password" class="input-small" placeholder="Password" name="password">
+    <label class="checkbox">
+        <input type="checkbox"> Remember me
+    </label>
+    <button type="submit" class="btn">Sign in</button>
+</form>
+
     <br><br>
 
-    Password<br>
-    <input type='password' name='password'>
-    <br><br>
+
+
     <?php if(isset($error)): ?>
-        <div class='error'>
+        <p class="error">
             Login failed. Please double check your email and password.
-        </div>
+        </p>
         <br>
     <?php endif; ?>
-
-
-    <input type='submit' value='Log in'>
-
-</form>

@@ -35,8 +35,8 @@ class posts_controller extends base_controller {
         DB::instance(DB_NAME)->insert('posts', $_POST);
 
 # Quick and dirty feedback
-        echo "Your post has been added. <a href='/posts/add'>Add another</a>";
-
+        //echo "Your post has been added. <a href='/posts/add'>Add another</a>";
+        Router::redirect("/posts/index");
     }
     public function index() {
 
@@ -45,7 +45,7 @@ class posts_controller extends base_controller {
         $this->template->title = "All Posts";
 
         # Query
-        $q = 'SELECT
+/*        $q = 'SELECT
 posts.content,
 posts.created,
 posts.user_id AS post_user_id,
@@ -58,7 +58,13 @@ ON posts.user_id = users_users.user_id_followed
 INNER JOIN users
 ON posts.user_id = users.user_id
 WHERE users_users.user_id = '.$this->user->user_id;
-
+*/
+        $q = 'SELECT posts.content, posts.created, posts.user_id AS post_user_id, users_users.user_id AS follower_id, users.first_name, users.last_name
+FROM posts
+INNER JOIN users_users ON posts.user_id = users_users.user_id_followed
+INNER JOIN users ON posts.user_id = users.user_id
+WHERE users_users.user_id = '.$this->user->user_id.'
+ORDER BY posts.created ASC';
         # Run the query, store the results in the variable $posts
         $posts = DB::instance(DB_NAME)->select_rows($q);
 
@@ -78,17 +84,19 @@ WHERE users_users.user_id = '.$this->user->user_id;
 
         # Build the query to get all the users
         $q = "SELECT *
-FROM users";
+        FROM users
+        WHERE user_id != ".$this->user->user_id.";";
 
-        # Execute the query to get all the users.
+            # Execute the query to get all the users.
         # Store the result array in the variable $users
         $users = DB::instance(DB_NAME)->select_rows($q);
 
         # Build the query to figure out what connections does this user already have?
         # I.e. who are they following
         $q = "SELECT *
-FROM users_users
-WHERE user_id = ".$this->user->user_id;
+            FROM users_users
+            WHERE user_id = ".$this->user->user_id."
+            ORDER BY created DESC;";
 
         # Execute this query with the select_array method
         # select_array will return our results in an array and use the "users_id_followed" field as the index.
