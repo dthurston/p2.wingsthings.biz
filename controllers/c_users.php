@@ -3,9 +3,8 @@ class users_controller extends base_controller {
 
     public function __construct() {
         parent::__construct();
-	// Commented this line out, it was causing the page to not display
-	// due to a "headers already sent" error.
-
+	    // Commented this line out, it was causing the page to not display
+	    // due to a "headers already sent" error.
         //echo "users_controller construct called<br><br>";
     } 
 
@@ -24,16 +23,17 @@ class users_controller extends base_controller {
     
 	public function p_signup() {
 
-        // More data we want stored with the user
+        // Store the created and modified times in the DB
     		$_POST['created']  = Time::now();
     		$_POST['modified'] = Time::now();
 		
-		// Encrypt the password  
-    		$_POST['password'] = sha1(PASSWORD_SALT.$_POST['password']);            
+		// Encrypt the password using the salts from config.php
+    		$_POST['password'] = sha1(PASSWORD_SALT.$_POST['password']);
+
     	// Create an encrypted token via their email address and a random string
     		$_POST['token'] = sha1(TOKEN_SALT.$_POST['email'].Utils::generate_random_string()); 
     		
-		// Insert this user into the database
+		// Insert the user into the database
     		$user_id = DB::instance(DB_NAME)->insert('users', $_POST);
 
     	// This should be changed to a post signup view.
@@ -45,39 +45,49 @@ class users_controller extends base_controller {
 
     	# Set up the view
     	$this->template->content = View::instance('v_users_login');
+        $this->template->title   = APP_NAME ." Login";
+
         # Pass data to the view
-    	$this->template->content->error = $error;
+        $this->template->content->error = $error;
+
         # Render the view
     	echo $this->template;
+}
 
-}	
 	public function p_login() {
+        # Set up the view
+        $this->template->content = View::instance('v_users_login');
 
-    	# Sanitize the user entered data to prevent any funny-business (re: SQL Injection Attacks)
+        # Verify there is an email address entered
+        if(!$_POST['email']) {
+            $this->template->content->error = '<p>Please enter an email address</p>';
+            echo $this->template;
+        }
+
+    	    # Sanitize the form input data
     		$_POST = DB::instance(DB_NAME)->sanitize($_POST);
 
-    	# Hash submitted password so we can compare it against one in the db
-    		$_POST['password'] = sha1(PASSWORD_SALT.$_POST['password']);
+            # Escape HTML chars
+            $_POST['email'] = stripslashes(htmlspecialchars($_POST['email']));
 
-    	# Search the db for this email and password
-    	# Retrieve the token if it's available
-    		$q = "SELECT token 
-    		FROM users 
-    		WHERE email = '".$_POST['email']."' 
-    		AND password = '".$_POST['password']."'";
-    		
-    		$token = DB::instance(DB_NAME)->select_field($q);
-    	
+            # Hash submitted password
+            $_POST['password'] = sha1(PASSWORD_SALT.$_POST['password']);
+
+            # Search the db for this email and password
+            # Retrieve the token if it's available
+            $q = "SELECT token
+            FROM users
+            WHERE email = '".$_POST['email']."'
+            AND password = '".$_POST['password']."'";
+
+            $token = DB::instance(DB_NAME)->select_field($q);
 
 		# Login failed
     		if(!$token) {
 
         		# Note the addition of the parameter "error"
-        		$this->template->error = $error;
-                    //echo "user exists, but bad password";
-				# Redirect the user to the error page        		
-        		Router::redirect("/users/login/error"); 
-
+        		$this->template->content->error = '<p>This username &amp; password combination was not found.</p>';
+				echo $this->template;
     		}
     		# Login passed
     		else {
@@ -109,23 +119,22 @@ class users_controller extends base_controller {
 
     public function profile($user_name = NULL) {
 
+        // If there is no one logged in, redirect to the login page
         if(!$this->user) {
-            Router::redirect('/users/login');
-            //die("Members Only! <a href=/users/login>Login Page</a>");
+        Router::redirect("/users/login");
         }
 
     # Setup view
     $this->template->content = View::instance('v_users_profile');
 
     # Set page title
-    $this->template->title = "Profile";
+    $this->template->title = $this->user->first_name . "'s ". APP_NAME ." Profile";
 
     # Create an array of 1 or many client files to be included in the head
     $client_files_head = Array(
         '/css/widgets.css',
         '/css/profile.css'
         );
-
 
     # Use load_client_files to generate the links from the above array
     $this->template->client_files_head = Utils::load_client_files($client_files_head);  
@@ -147,4 +156,38 @@ class users_controller extends base_controller {
     echo $this->template;
     }
 
-} # end of the class
+    public function profile_update() {
+        # if the user specified a new image file, upload it
+        if ($_FILES['avatar']['error'] == 0)
+        {
+            # upload the image
+            $image = Upload::upload($_FILES, "/uploads/avatars/", array("JPG", "JPEG", "jpg", "jpeg", "gif", "GIF", "png", "PNG"), $this->user->user_id);
+
+            if($image == 'Invalid file type.') {
+                # return an error
+                Router::redirect("/users/profile/error");
+            }
+            else {
+                # create a link to the image in the DB image column of the users table
+                $data = Array("image" => $image);
+                DB::instance(DB_NAME)->update("users", $data, "WHERE user_id = ".$this->user->user_id);
+
+                # resize the image to something sane
+                $imgObj = new Image($_SERVER["DOCUMENT_ROOT"] . '/uploads/avatars/' . $image);
+                $imgObj->resize(100,100, "crop");
+                $imgObj->save_image($_SERVER["DOCUMENT_ROOT"] . '/uploads/avatars/' . $image);
+            }
+        }
+
+        else {
+            # Something has failed in the profile update
+            Router::redirect("/users/profile/error");
+        }
+
+        # Redirect to the profile page
+        router::redirect('/users/profile');
+    }
+
+
+
+} #EOC

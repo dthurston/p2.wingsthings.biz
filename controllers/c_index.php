@@ -19,7 +19,7 @@ class index_controller extends base_controller {
 			$this->template->content = View::instance('v_index_index');
 			
 		# Now set the <title> tag
-			$this->template->title = "Hello World";
+			$this->template->title = APP_NAME . " Home";
 	
 		# CSS/JS includes
 			/*
@@ -36,4 +36,4 @@ class index_controller extends base_controller {
 	} # End of method
 	
 	
-} # End of class
+} # EOC
