@@ -1,21 +1,27 @@
-<form class="form-inline" method='POST' action='/users/p_login'>
+<form class="form-horizontal" method='POST' action='/users/p_login'>
+    <div class="control-group">
+    <label class="control-label" for "inputEmail">Email</label>
+        <div class="controls">
+            <input type="text" id="inputEmail" placeholder="Email" name="email">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputPassword">Password</label>
+            <div class="controls">
+            <input type="password" id="inputPassword" placeholder="Password" name="password">
+            </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <button type="submit" class="btn">Sign in</button>
+        </div>
+    </div>
 
-
-    <input type="text" class="input-small" placeholder="Email" name="email">
-    <input type="password" class="input-small" placeholder="Password" name="password">
-    <label class="checkbox">
-        <input type="checkbox"> Remember me
-    </label>
-    <button type="submit" class="btn">Sign in</button>
 </form>
 
     <br><br>
-
-
-
+    <!-- If there are any errors, display them here -->
     <?php if(isset($error)): ?>
-        <p class="error">
-            Login failed. Please double check your email and password.
-        </p>
+        <?php echo $error; ?>
         <br>
     <?php endif; ?>

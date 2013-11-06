@@ -1,24 +1,30 @@
 <h1>This is the profile of <?=$user->first_name?></h1>
-<!--<img src="/uploads/avatars/thedude.jpg" alt="User Avatar" height="42" width="42"> -->
+<p>A proud member since <?= date('F j, Y', $user->created) ?></p>
 
-<ul class="thumbnails">
-    <li class="span4">
-        <a href="/uploads/avatars/thedude.jpg" class="thumbnail">
-            <!-- <img data-src="holder.js/300x200" alt="//<?=$user->first_name?>"> -->
-            <img src="/uploads/avatars/thedude.jpg" class="img-polaroid">
-        </a>
-    </li>
-</ul>
+<h3> Your picture! </h3>
+
+    <!-- If the user has no image, use placeholder.jpg as a temp holding name -->
+    <?php if ($user->image == 'placeholder.jpg'): ?>
+    <p> Please upload a picture of yourself! </p>
+    <?php endif; ?>
 
 
-
-<ul class="thumbnails">
-    <li class="span4">
-        <div class="thumbnail">
-            <!--<img data-src="holder.js/300x200" alt="">-->
-            <img data-src="/uploads/avatars/thedude.jpg" alt="<?=$user->first_name?>">
-            <h3>Thumbnail label</h3>
-            <p>Thumbnail caption...</p>
+<form class="form-horizontal" role="form" method='POST' enctype="multipart/form-data" action='/users/profile_update/'>
+    <div class="control-group">
+        <label class="control-label">Your Profile Image</label>
+        <div class="controls">
+        <img src="/uploads/avatars/<?= $user->image ?>" alt="<?=$user->first_name . ' ' . $user->last_name ?>" class="img-polaroid">
         </div>
-    </li>
-</ul>
+        <div class="controls">
+        <input type="file" id="avatar" name="avatar">
+        </div>
+    </div>
+    <button type="submit" class="btn">Update Your Profile Image</button>
+</form>
+
+<?php if(isset($error)): ?>
+    <div class="error">
+        <h4>The upload has failed.</h4>
+        <p>Image file must be a jpg, gif, or png.</p>
+    </div>
+<?php endif; ?>
